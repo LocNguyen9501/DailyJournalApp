@@ -2,11 +2,12 @@
 
 <h1>HOME</h1>
 <p> <%= homeContent %> </p>
-
-<% posts.map(post=>{ %>
-  <h3><%= post.title %></h3>
-  <p>
-    <%= post.content.substring(0,100)+"..." %>
-    <a href="/posts/<%= post._id %>">Read More</a>
-  </p>
-<% }) %>
+<% if(posts){ %>
+  <% posts.map(post=>{ %>
+    <h3><%= post.title %></h3>
+    <p>
+      <%= post.content.substring(0,100)+"..." %>
+      <a href="/posts/<%= post._id %>">Read More</a>
+    </p>
+  <% }) %>
+<% } %>

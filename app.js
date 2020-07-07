@@ -51,11 +51,10 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.get("/", function(req,res){
-  res.render("about",{aboutInfo:aboutContent})
+  res.render("about",{aboutInfo:aboutContent,contactInfo: contactContent})
 })
 
 app.get("/home",function(req,res){
-
   if(req.isAuthenticated()){
     User.findOne({_id:req.user.id, posts:{$exists:true, $ne:[]}},function(err,foundUser){
       if(err){
@@ -64,17 +63,13 @@ app.get("/home",function(req,res){
         if(foundUser){
           res.render("home",{homeContent:homeStartingContent,posts:foundUser.posts})
         }else{
-          res.render("home",{homeContent:homeStartingContent})
+            res.render("home",{homeContent:homeStartingContent,posts:foundUser})
         }
       }
     })
   }else{
     res.redirect("/login")
   }
-})
-
-app.get("/contact",function(req,res){
-  res.render("contact", {contactInfo: contactContent})
 })
 
 app.get("/posts/:postId",function(req,res){
