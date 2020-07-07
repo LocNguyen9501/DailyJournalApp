@@ -18,6 +18,7 @@ mongoose.connect("mongodb://localhost:27017/blogDB",{
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
+mongoose.set('useFindAndModify', false);
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -54,6 +55,22 @@ app.get("/", function(req,res){
   res.render("about",{aboutInfo:aboutContent,contactInfo: contactContent})
 })
 
+app.get("/about",function(req,res){
+  if(req.isAuthenticated()){
+    res.render("aboutAfterLogin",{aboutInfo:aboutContent})
+  }else{
+    res.redirect("/login");
+  }
+})
+
+app.get("/contact",function(req,res){
+  if(req.isAuthenticated()){
+    res.render("contact",{contactInfo: contactContent})
+  }else{
+    res.redirect("/login");
+  }
+})
+
 app.get("/home",function(req,res){
   if(req.isAuthenticated()){
     User.findOne({_id:req.user.id, posts:{$exists:true, $ne:[]}},function(err,foundUser){
@@ -72,7 +89,15 @@ app.get("/home",function(req,res){
   }
 })
 
-app.get("/posts/:postId",function(req,res){
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
+//////////////////////// Posts/:posts route /////////////////////
+app.route("/posts/:postId")
+
+.get(function(req,res){
   const postId = req.params.postId;
   User.findOne({_id: req.user.id},function(err,foundUser){
     if(err){
@@ -81,8 +106,7 @@ app.get("/posts/:postId",function(req,res){
       if(foundUser){
         foundUser.posts.filter(post=>{
           if(post.id === postId){
-            console.log("This is the post "+post);
-            res.render("post", {foundPost: post});
+            res.render("post", {foundPost: post,postId: req.params.postId});
           }
         })
       }
@@ -90,9 +114,14 @@ app.get("/posts/:postId",function(req,res){
   })
 })
 
-app.get('/logout', function(req, res){
-  req.logout();
-  res.redirect('/');
+.post(function(req,res){
+  User.findOneAndUpdate({_id: req.user.id},{$pull:{posts:{_id: req.params.postId}}},function(err,foundUser){
+    if(err){
+      console.log(err);
+    }else{
+      res.redirect("/home")
+    }
+  })
 });
 
 //////////////////////// Compose route /////////////////////
