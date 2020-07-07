@@ -1,0 +1,13 @@
+<%- include("partials/header") %>
+
+<h1>HOME</h1>
+<p> <%= homeContent %> </p>
+<% postList.map((item) => { %>
+  <h3><%= item.title %></h3>
+  <p>
+
+    <%= item.content.substring(0,100)+"..." %>
+    <a href="/posts/<%= item._id %>">Read More</a>
+
+  </p>
+<% }); %>
