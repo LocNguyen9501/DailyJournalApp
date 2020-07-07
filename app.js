@@ -1,5 +1,4 @@
-//jshint esversion:6
-
+require('dotenv').config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs")
@@ -29,7 +28,11 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-app.get("/",function(req,res){
+app.get("/", function(req,res){
+  res.render("about",{aboutInfo:aboutContent})
+})
+
+app.get("/home",function(req,res){
 
   Post.find({},function(err,foundPost){
     if(err){
@@ -42,14 +45,6 @@ app.get("/",function(req,res){
 
 app.get("/contact",function(req,res){
   res.render("contact", {contactInfo: contactContent})
-})
-
-app.get("/about", function(req,res){
-  res.render("about",{aboutInfo:aboutContent})
-})
-
-app.get("/compose", function(req,res){
-  res.render("compose")
 })
 
 app.get("/posts/:postID",function(req,res){
@@ -65,17 +60,48 @@ app.get("/posts/:postID",function(req,res){
   })
 })
 
-app.post("/compose",function(req,res){
+//////////////////////// Compose route /////////////////////
+app.route("/compose")
+
+.get(function(req,res){
+  res.render("compose")
+})
+
+.post(function(req,res){
   const newItem = new Post({
     title: req.body.postTitle,
     content: req.body.postContent
   })
   newItem.save(function(err){
     if (!err){
-    res.redirect("/");
+    res.redirect("/home");
   }
 })
+});
+
+//////////////////////// Login route ////////////////////////
+app.route("/login")
+
+.get(function(req,res){
+  res.render("login")
 })
+
+.post();
+
+//////////////////////// Register route /////////////////////
+app.route("/register")
+
+.get(function(req,res){
+  res.render("register")
+})
+
+.post(function(req,res){
+
+});
+
+
+
+
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
